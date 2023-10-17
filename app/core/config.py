@@ -3,7 +3,6 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_title: str
-    app_author: str
     app_description: str
     database_url: str
 
