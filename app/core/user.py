@@ -28,7 +28,7 @@ def get_jwt_strategy() -> JWTStrategy:
 
 
 auth_backend = AuthenticationBackend(
-    name='jwt',  # Произвольное имя бэкенда (должно быть уникальным).
+    name='jwt',
     transport=bearer_transport,
     get_strategy=get_jwt_strategy,
 )
