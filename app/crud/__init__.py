@@ -1,1 +1,1 @@
-from .tasks import tasks_crud  # noqa
+from .tasks import *  # noqa

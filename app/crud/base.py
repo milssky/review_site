@@ -1,8 +1,8 @@
-from typing import Generic, Sequence, Type, TypeVar
+from typing import Generic, Type, TypeVar
 
-from sqlalchemy import insert, select, update
+from sqlalchemy import inspect, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeMeta
+from sqlalchemy.orm import DeclarativeMeta, Mapped, selectinload
 
 ModelType = TypeVar("ModelType", bound=DeclarativeMeta)
 
@@ -23,9 +23,9 @@ class CRUDBase(Generic[ModelType]):
         self,
         session: AsyncSession,
         **kwargs,
-    ) -> Sequence[ModelType]:
+    ) -> list[ModelType]:
         instances = await session.execute(select(self.model).filter_by(**kwargs))
-        return instances.scalars().all()
+        return instances.scalars().all()  # type: ignore
 
     async def get_by_attribute(
         self,
@@ -41,14 +41,28 @@ class CRUDBase(Generic[ModelType]):
         self,
         session: AsyncSession,
         **kwargs,
-    ):
-        instance = await session.execute(select(self).filter_by(**kwargs))
+    ) -> tuple[ModelType, bool]:
+        instance = await session.execute(
+            select(self.model)
+            .filter_by(**kwargs)
+            .options(
+                *[
+                    selectinload(getattr(self.model, prop.key))
+                    for prop in inspect(self.model).iterate_properties
+                    if isinstance(prop, Mapped)
+                ]
+            )
+        )
         instance = instance.scalars().first()
+        create = False
 
         if not instance:
-            instance = await session.execute(insert(self.model).values(**kwargs))
+            create = True
+            instance = self.model(**kwargs)  # type: ignore
+            session.add(instance)
             await session.commit()
-        return instance
+
+        return instance, create
 
     async def update(
         self,

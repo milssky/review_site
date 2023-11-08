@@ -9,10 +9,25 @@ class SolutionDB(BaseModel):
     status: bool
 
 
-class TaskGet(BaseModel):
+class GiveUserTask(BaseModel):
+    task_id: int
+    user_id: int
+
+
+class BaseTaskSchema(BaseModel):
     name: str
     text: str
     language: list[str]
-    is_solved: bool
-    course: CourseDB
+
+
+class TaskDB(BaseTaskSchema):
     solutions: list[SolutionDB]
+    course: CourseDB
+
+
+class UserTask(TaskDB):
+    is_solved: bool
+
+
+class TaskCreate(BaseTaskSchema):
+    course_id: int

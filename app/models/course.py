@@ -8,5 +8,5 @@ class Course(Base):
     name = Column(String(50), unique=True)
     teacher_id = mapped_column(ForeignKey("user.id"))
 
-    teacher: Mapped["User"] = relationship(back_populates="User")
-    tasks: Mapped[list["Task"]] = relationship(back_populates="tasks")
+    teacher: Mapped["User"] = relationship(back_populates="course")
+    tasks: Mapped[list["Task"]] = relationship(back_populates="course")

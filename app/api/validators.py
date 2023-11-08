@@ -27,7 +27,7 @@ def validator(name):
 
 async def is_task_author(
     task_id: int,
-    user: int,
+    user_id: int,
     session: AsyncSession,
 ) -> None:
     pass

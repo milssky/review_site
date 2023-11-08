@@ -49,10 +49,16 @@ class File(Base):
     solution: Mapped["Solution"] = relationship(back_populates="files")
 
 
-TaskUser = Table(
-    "taskuser",
+UserSolutions = Table(
+    "usersolutions",
     Base.metadata,
     Column("task_id", ForeignKey("task.id")),
     Column("user_id", ForeignKey("user.id")),
     Column("solution_id", ForeignKey("solution.id")),
 )
+
+
+class UserTask(Base):
+    task_id = mapped_column(ForeignKey("task.id"))
+    user_id = mapped_column(ForeignKey("user.id"))
+    is_solved = Column(Boolean(), default=False)
