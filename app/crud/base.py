@@ -77,12 +77,24 @@ class CRUDBase(Generic[ModelType]):
     async def update(
         self,
         session: AsyncSession,
-        *criteria,
+        criteria: dict,
         **kwargs,
     ) -> ModelType:
+        values = {k: v for k, v in kwargs.items() if v is not None}
         instance = await session.execute(
-            update(self.model).values(**kwargs).returning(self.model).filter(*criteria)
+            update(self.model)
+            .values(**values)
+            .returning(self.model)
+            .filter_by(**criteria)
+            .options(
+                *[
+                    selectinload(getattr(self.model, prop.key))
+                    for prop in inspect(self.model).iterate_properties
+                    if isinstance(prop, Mapped)
+                ]
+            )
         )
+        await session.commit()
         return instance.scalars().one()
 
     async def delete(

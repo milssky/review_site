@@ -28,12 +28,11 @@ class TaskDB(BaseTaskSchema):
 
 
 class TaskUpdate(BaseModel):
-    id: int
-    name: Optional[str]
-    text: Optional[str]
-    language: Optional[list[str]]
-    solutions: Optional[list[SolutionDB]]
-    course: Optional[CourseDB]
+    name: Optional[str] = None
+    text: Optional[str] = None
+    language: Optional[list[str]] = None
+    solutions: Optional[list[int]] = None
+    course: Optional[int] = None
 
 
 class UserTask(TaskDB):

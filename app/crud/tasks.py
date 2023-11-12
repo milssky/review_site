@@ -40,5 +40,20 @@ class TasksCRUD(CRUDBase[Task]):
         )
         await session.commit()
 
+    async def remove_user_tasks(
+        self,
+        session: AsyncSession,
+        user_id: int,
+        task_id: int,
+    ) -> None:
+        instance = await session.execute(
+            select(UserTask).filter_by(
+                user_id=user_id,
+                task_id=task_id,
+            )
+        )
+        await session.delete(instance)
+        await session.commit()
+
 
 tasks_crud = TasksCRUD(Task)
