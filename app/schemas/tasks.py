@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from app.schemas.course import CourseDB
@@ -23,6 +25,15 @@ class BaseTaskSchema(BaseModel):
 class TaskDB(BaseTaskSchema):
     solutions: list[SolutionDB]
     course: CourseDB
+
+
+class TaskUpdate(BaseModel):
+    id: int
+    name: Optional[str]
+    text: Optional[str]
+    language: Optional[list[str]]
+    solutions: Optional[list[SolutionDB]]
+    course: Optional[CourseDB]
 
 
 class UserTask(TaskDB):

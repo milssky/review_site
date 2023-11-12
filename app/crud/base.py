@@ -16,7 +16,17 @@ class CRUDBase(Generic[ModelType]):
         session: AsyncSession,
         **kwargs,
     ) -> ModelType | None:
-        instance = await session.execute(select(self).filter_by(**kwargs))
+        instance = await session.execute(
+            select(self.model)
+            .filter_by(**kwargs)
+            .options(
+                *[
+                    selectinload(getattr(self.model, prop.key))
+                    for prop in inspect(self.model).iterate_properties
+                    if isinstance(prop, Mapped)
+                ]
+            )
+        )
         return instance.scalars().first()
 
     async def get_multi(
@@ -66,13 +76,14 @@ class CRUDBase(Generic[ModelType]):
 
     async def update(
         self,
-        obj: ModelType,
         session: AsyncSession,
+        *criteria,
         **kwargs,
     ) -> ModelType:
-        await session.execute(update(obj).values(**kwargs))
-        await session.refresh(obj)
-        return obj
+        instance = await session.execute(
+            update(self.model).values(**kwargs).returning(self.model).filter(*criteria)
+        )
+        return instance.scalars().one()
 
     async def delete(
         self,

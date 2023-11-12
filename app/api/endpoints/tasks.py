@@ -5,8 +5,10 @@ from app.api.validators import validator
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
 from app.crud import tasks_crud
+from app.models.task import Task
 from app.models.user import User
 from app.schemas import TaskCreate, TaskDB, UserTask
+from app.schemas.tasks import TaskUpdate
 
 router = APIRouter()
 
@@ -23,7 +25,6 @@ async def get_user_tasks(
         user_id=user.id,
         session=sesson,
     )
-    print(dir(tasks[0]))
     return tasks  # type: ignore
 
 
@@ -43,6 +44,36 @@ async def create_task(
     return task
 
 
+@router.get(
+    "/{task_id}",
+)
+async def get_task(
+    task_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> TaskDB:
+    task = await tasks_crud.get(
+        session=session,
+        id=task_id,
+    )
+    return task
+
+
+@router.put(
+    "/{task_id}",
+)
+async def change_task(
+    task_update: TaskUpdate,
+    user: User = Depends(current_superuser),
+    session: AsyncSession = Depends(get_async_session),
+) -> TaskDB:
+    task = await tasks_crud.update(
+        session,
+        Task.id == task_update.id,
+        **task_update.model_dump(),
+    )
+    return task  # type: ignore
+
+
 @router.post(
     "/{task_id}/{user_id}",
 )
@@ -59,20 +90,6 @@ async def give_task(
         task_id=task_id,
         session=session,
     )
-
-
-@router.get(
-    "/{task_id}",
-)
-async def get_task(
-    task_id: int,
-    session: AsyncSession = Depends(get_async_session),
-) -> TaskDB:
-    task = await tasks_crud.get(
-        session=session,
-        id=task_id,
-    )
-    return task
 
 
 @router.delete(
