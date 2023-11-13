@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import validator
+from app.api.validators import (validate_change_task, validate_create_task,
+                                validate_exists)
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
-from app.crud import tasks_crud
+from app.crud import tasks_crud, user_crud
 from app.models.user import User
 from app.schemas import TaskCreate, TaskDB, UserTask
 from app.schemas.tasks import TaskUpdate
@@ -37,6 +38,10 @@ async def create_task(
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskDB:
     """Создает задачу. Доступно только преподавателю."""
+    await validate_create_task(
+        task_data=task_data,
+        session=session,
+    )
 
     task, created = await tasks_crud.get_or_create(
         **task_data.model_dump(),
@@ -72,6 +77,12 @@ async def change_task(
 ) -> TaskDB:
     """Изменение задачи"""
 
+    await validate_change_task(
+        task_id=task_id,
+        task_data=task_update,
+        session=session,
+    )
+
     task = await tasks_crud.update(
         session=session,
         criteria=dict(id=task_id),
@@ -91,6 +102,20 @@ async def give_task(
 ) -> None:
     """Присвоить задачу пользователю."""
 
+    await validate_exists(
+        row_id=task_id,
+        model_name="Task",
+        crud=tasks_crud,
+        session=session,
+    )
+
+    await validate_exists(
+        row_id=user_id,
+        model_name="User",
+        crud=user_crud,
+        session=session,
+    )
+
     await tasks_crud.give_user_tasks(
         user_id=user_id,
         task_id=task_id,
@@ -109,6 +134,20 @@ async def remove_task(
 ) -> None:
     """Удалить задачу у пользователю."""
 
+    await validate_exists(
+        row_id=task_id,
+        model_name="Task",
+        crud=tasks_crud,
+        session=session,
+    )
+
+    await validate_exists(
+        row_id=user_id,
+        model_name="User",
+        crud=user_crud,
+        session=session,
+    )
+
     await tasks_crud.remove_user_tasks(
         user_id=user_id,
         task_id=task_id,
@@ -120,12 +159,18 @@ async def remove_task(
     "/{task_id}",
     status_code=204,
 )
-@validator(name="is_task_author")
 async def delete_task(
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удалить задачу"""
+
+    await validate_exists(
+        row_id=task_id,
+        model_name="Task",
+        crud=tasks_crud,
+        session=session,
+    )
 
     await tasks_crud.delete(
         session=session,

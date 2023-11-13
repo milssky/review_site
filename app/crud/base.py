@@ -1,8 +1,8 @@
 from typing import Generic, Type, TypeVar
 
-from sqlalchemy import inspect, select, update
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeMeta, Mapped, selectinload
+from sqlalchemy.orm import DeclarativeMeta
 
 ModelType = TypeVar("ModelType", bound=DeclarativeMeta)
 
@@ -16,17 +16,7 @@ class CRUDBase(Generic[ModelType]):
         session: AsyncSession,
         **kwargs,
     ) -> ModelType | None:
-        instance = await session.execute(
-            select(self.model)
-            .filter_by(**kwargs)
-            .options(
-                *[
-                    selectinload(getattr(self.model, prop.key))
-                    for prop in inspect(self.model).iterate_properties
-                    if isinstance(prop, Mapped)
-                ]
-            )
-        )
+        instance = await session.execute(select(self.model).filter_by(**kwargs))
         return instance.scalars().first()
 
     async def get_multi(
@@ -52,17 +42,7 @@ class CRUDBase(Generic[ModelType]):
         session: AsyncSession,
         **kwargs,
     ) -> tuple[ModelType, bool]:
-        instance = await session.execute(
-            select(self.model)
-            .filter_by(**kwargs)
-            .options(
-                *[
-                    selectinload(getattr(self.model, prop.key))
-                    for prop in inspect(self.model).iterate_properties
-                    if isinstance(prop, Mapped)
-                ]
-            )
-        )
+        instance = await session.execute(select(self.model).filter_by(**kwargs))
         instance = instance.scalars().first()
         create = False
 
@@ -71,6 +51,8 @@ class CRUDBase(Generic[ModelType]):
             instance = self.model(**kwargs)  # type: ignore
             session.add(instance)
             await session.commit()
+            instance = await session.execute(select(self.model).filter_by(**kwargs))
+            instance = instance.scalars().first()
 
         return instance, create
 
@@ -86,13 +68,6 @@ class CRUDBase(Generic[ModelType]):
             .values(**values)
             .returning(self.model)
             .filter_by(**criteria)
-            .options(
-                *[
-                    selectinload(getattr(self.model, prop.key))
-                    for prop in inspect(self.model).iterate_properties
-                    if isinstance(prop, Mapped)
-                ]
-            )
         )
         await session.commit()
         return instance.scalars().one()

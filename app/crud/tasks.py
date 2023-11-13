@@ -1,6 +1,5 @@
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
 from app.models import Task, UserTask
@@ -15,10 +14,6 @@ class TasksCRUD(CRUDBase[Task]):
         instances = await session.execute(
             select(self.model)
             .join(UserTask, UserTask.user_id == user_id)
-            .options(
-                selectinload(self.model.course),
-                selectinload(self.model.solutions),
-            )
             .add_columns(UserTask.is_solved)
         )
         return [

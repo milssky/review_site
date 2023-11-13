@@ -31,8 +31,7 @@ class TaskUpdate(BaseModel):
     name: Optional[str] = None
     text: Optional[str] = None
     language: Optional[list[str]] = None
-    solutions: Optional[list[int]] = None
-    course: Optional[int] = None
+    course_id: Optional[int] = None
 
 
 class UserTask(TaskDB):

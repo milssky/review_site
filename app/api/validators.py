@@ -1,33 +1,76 @@
-import importlib
-import inspect
-from functools import wraps
-
+from fastapi import HTTPException
+from sqlalchemy.engine import row
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
-def validator(name):
-    def decorator(func):
-        module_name = "app.api.validators"
-        module = importlib.import_module(module_name)
-        validation_func = getattr(module, name, None)
-        if validation_func is None or not inspect.isfunction(validation_func):
-            raise AttributeError(f"Validator '{name}' not found")
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            validation_error = validation_func(*args, **kwargs)
-            if validation_error:
-                return {"error": validation_error}
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
+from app.crud import course_crud, tasks_crud
+from app.schemas.tasks import TaskCreate, TaskUpdate
 
 
-async def is_task_author(
-    task_id: int,
-    user_id: int,
+async def validate_create_task(
+    task_data: TaskCreate,
     session: AsyncSession,
-) -> None:
-    pass
+):
+    course_id = task_data.course_id
+    course = await course_crud.get(
+        session=session,
+        id=course_id,
+    )
+    task = await tasks_crud.get(
+        session=session,
+        name=task_data.name,
+    )
+    errors = dict()
+    if course is None:
+        errors["course_id"] = "Course not found"
+    if task is not None:
+        errors["task_name"] = "Task with this name exist"
+
+    if errors:
+        raise HTTPException(422, detail=errors)
+
+
+async def validate_change_task(
+    task_data: TaskUpdate,
+    task_id: int,
+    session: AsyncSession,
+):
+    course_id = task_data.course_id
+    course = await course_crud.get(
+        session=session,
+        id=course_id,
+    )
+    task = await tasks_crud.get(
+        session=session,
+        id=task_id,
+    )
+    task_duplicate_name = await tasks_crud.get(
+        session=session,
+        name=task_data.name,
+    )
+    errors = dict()
+    if course is None:
+        errors["course_id"] = "Course not found"
+    if task is None:
+        errors["task_id"] = "Task not found"
+    if task_duplicate_name is not None:
+        errors["task_name"] = "Task with this name exist"
+
+    if errors:
+        raise HTTPException(422, detail=errors)
+
+
+async def validate_exists(
+    crud,
+    row_id: int,
+    model_name: str,
+    session: AsyncSession,
+):
+    instance = await crud.get(
+        id=row_id,
+        session=session,
+    )
+    if instance is None:
+        raise HTTPException(
+            422,
+            detail={model_name: "Not found"},
+        )

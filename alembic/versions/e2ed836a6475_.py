@@ -61,7 +61,6 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
-        sa.UniqueConstraint("text"),
     )
     op.create_table(
         "solution",
