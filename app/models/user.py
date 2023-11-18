@@ -1,7 +1,6 @@
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy import Boolean, Column, String
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm.decl_api import relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from app.core.db import Base
 

@@ -1,3 +1,3 @@
-from .course import Course  # noqa
-from .task import File, Solution, Task  # noqa
-from .user import User  # noqa
+from .course import *  # noqa
+from .task import *  # noqa
+from .user import *  # noqa
