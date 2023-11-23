@@ -6,7 +6,6 @@ class Settings(BaseSettings):
     app_description: str
     database_url: str
     secret: str = "SuperSecretString!"
-    archive_save_path: str
 
     class Config:
         env_file = ".env"

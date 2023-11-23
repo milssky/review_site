@@ -18,13 +18,13 @@ router = APIRouter()
 )
 async def get_user_tasks(
     user: User = Depends(current_user),
-    sesson: AsyncSession = Depends(get_async_session),
+    session: AsyncSession = Depends(get_async_session),
 ) -> list[UserTask]:
     """Возвращает задачи текущего пользователя."""
 
     tasks = await tasks_crud.get_user_tasks(
         user_id=user.id,
-        session=sesson,
+        session=session,
     )
     return tasks  # type: ignore
 
