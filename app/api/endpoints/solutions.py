@@ -14,20 +14,20 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    '/',
 )
 async def create_solution(
     task_id: int,
     file: UploadFile,
     user: User = Depends(current_user),
     session: AsyncSession = Depends(get_async_session),
-) -> None:
+) -> dict:
     """Создает решение"""
 
     if file.filename is None:
         raise HTTPException(
             400,
-            detail={"file_name": "filename not found"},
+            detail={'file_name': 'filename not found'},
         )
     solution, _ = await solution_crud.get_or_create(
         session=session,
@@ -38,10 +38,11 @@ async def create_solution(
         file=file,
         solution_id=solution.id,
     )
+    return {'status': 'Файлы решения были получены'}
 
 
 @router.get(
-    "/{solution_id}",
+    '/{solution_id}',
 )
 async def get_solution(
     task_id: int,
@@ -51,14 +52,14 @@ async def get_solution(
 ) -> SolutionGet:
     await validate_exists(
         row_id=task_id,
-        model_name="Task",
+        model_name='Task',
         crud=tasks_crud,
         session=session,
     )
 
     await validate_exists(
         row_id=solution_id,
-        model_name="Solution",
+        model_name='Solution',
         crud=solution_crud,
         session=session,
     )
