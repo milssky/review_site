@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-from sqlalchemy.engine import row
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import course_crud, tasks_crud
@@ -26,7 +25,7 @@ async def validate_create_task(
         errors["task_name"] = "Task with this name exist"
 
     if errors:
-        raise HTTPException(422, detail=errors)
+        raise HTTPException(400, detail=errors)
 
 
 async def validate_change_task(
@@ -56,7 +55,7 @@ async def validate_change_task(
         errors["task_name"] = "Task with this name exist"
 
     if errors:
-        raise HTTPException(422, detail=errors)
+        raise HTTPException(400, detail=errors)
 
 
 async def validate_exists(
@@ -71,6 +70,6 @@ async def validate_exists(
     )
     if instance is None:
         raise HTTPException(
-            422,
+            400,
             detail={model_name: "Not found"},
         )

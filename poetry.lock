@@ -545,6 +545,17 @@ build-docs = ["cloud-sptheme (>=1.10.1)", "sphinx (>=1.6)", "sphinxcontrib-fullt
 totp = ["cryptography"]
 
 [[package]]
+name = "patool"
+version = "1.15.0"
+description = "portable archive file manager"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "patool-1.15.0-py2.py3-none-any.whl", hash = "sha256:b14fd047571f71220de5d220bac9974fa2f423cce3c42cf0a85f54f155c30f09"},
+    {file = "patool-1.15.0.tar.gz", hash = "sha256:d94814a1c92d111089001f6a67b058de29ae7033e172503af1acb452048c8a69"},
+]
+
+[[package]]
 name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
@@ -901,4 +912,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "6190251a6b4ab00c0cade4eaea6f6317677a21db0dd8edce5befe106fbdd0084"
+content-hash = "21ce9e34096b1e10a3bb25dde09d5e137173f86c118be44a5051f75ee58fe32b"

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -40,3 +41,22 @@ class UserTask(TaskDB):
 
 class TaskCreate(BaseTaskSchema):
     course_id: int
+
+
+# Solutions
+
+
+class File(BaseModel):
+    name: str
+    content: str
+
+
+class SolutionTask(BaseTaskSchema):
+    course: CourseDB
+
+
+class SolutionGet(BaseModel):
+    status: bool
+    files: list[File]
+    task: SolutionTask
+    solved_date: datetime

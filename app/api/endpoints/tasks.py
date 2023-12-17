@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (validate_change_task, validate_create_task,
-                                validate_exists)
+from app.api.validators import (
+    validate_change_task,
+    validate_create_task,
+    validate_exists,
+)
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
 from app.crud import tasks_crud, user_crud
@@ -14,23 +17,23 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    '/',
 )
 async def get_user_tasks(
     user: User = Depends(current_user),
-    sesson: AsyncSession = Depends(get_async_session),
+    session: AsyncSession = Depends(get_async_session),
 ) -> list[UserTask]:
     """Возвращает задачи текущего пользователя."""
 
     tasks = await tasks_crud.get_user_tasks(
         user_id=user.id,
-        session=sesson,
+        session=session,
     )
     return tasks  # type: ignore
 
 
 @router.post(
-    "/",
+    '/',
 )
 async def create_task(
     task_data: TaskCreate,
@@ -38,6 +41,7 @@ async def create_task(
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskDB:
     """Создает задачу. Доступно только преподавателю."""
+
     await validate_create_task(
         task_data=task_data,
         session=session,
@@ -51,7 +55,7 @@ async def create_task(
 
 
 @router.get(
-    "/{task_id}",
+    '/{task_id}',
 )
 async def get_task(
     task_id: int,
@@ -67,7 +71,7 @@ async def get_task(
 
 
 @router.put(
-    "/{task_id}",
+    '/{task_id}',
 )
 async def change_task(
     task_id: int,
@@ -92,7 +96,7 @@ async def change_task(
 
 
 @router.post(
-    "/{task_id}/{user_id}",
+    '/{task_id}/{user_id}',
 )
 async def give_task(
     task_id: int,
@@ -104,14 +108,14 @@ async def give_task(
 
     await validate_exists(
         row_id=task_id,
-        model_name="Task",
+        model_name='Task',
         crud=tasks_crud,
         session=session,
     )
 
     await validate_exists(
         row_id=user_id,
-        model_name="User",
+        model_name='User',
         crud=user_crud,
         session=session,
     )
@@ -124,7 +128,7 @@ async def give_task(
 
 
 @router.delete(
-    "/{task_id}/{user_id}",
+    '/{task_id}/{user_id}',
 )
 async def remove_task(
     task_id: int,
@@ -136,14 +140,14 @@ async def remove_task(
 
     await validate_exists(
         row_id=task_id,
-        model_name="Task",
+        model_name='Task',
         crud=tasks_crud,
         session=session,
     )
 
     await validate_exists(
         row_id=user_id,
-        model_name="User",
+        model_name='User',
         crud=user_crud,
         session=session,
     )
@@ -156,7 +160,7 @@ async def remove_task(
 
 
 @router.delete(
-    "/{task_id}",
+    '/{task_id}',
     status_code=204,
 )
 async def delete_task(
@@ -167,7 +171,7 @@ async def delete_task(
 
     await validate_exists(
         row_id=task_id,
-        model_name="Task",
+        model_name='Task',
         crud=tasks_crud,
         session=session,
     )
