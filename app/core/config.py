@@ -5,10 +5,10 @@ class Settings(BaseSettings):
     app_title: str
     app_description: str
     database_url: str
-    secret: str = "SuperSecretString!"
+    secret: str = 'SuperSecretString!'
 
     class Config:
-        env_file = ".env"
+        env_file = '.env'
 
 
 settings = Settings()

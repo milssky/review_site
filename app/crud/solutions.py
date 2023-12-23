@@ -11,7 +11,7 @@ class SolutionCRUD(CRUDBase[Solution]):
         solution_id: int,
         **kwargs,
     ) -> None:
-        instance = File(**kwargs, solution_id=solution_id)  # type: ignore
+        instance = File(**kwargs, solution_id=solution_id)
         session.add(instance)
         await session.commit()
 

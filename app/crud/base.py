@@ -4,7 +4,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeMeta
 
-ModelType = TypeVar("ModelType", bound=DeclarativeMeta)
+ModelType = TypeVar('ModelType', bound=DeclarativeMeta)
 
 
 class CRUDBase(Generic[ModelType]):
@@ -54,7 +54,7 @@ class CRUDBase(Generic[ModelType]):
             instance = await session.execute(select(self.model).filter_by(**kwargs))
             instance = instance.scalars().first()
 
-        return instance, create
+        return instance, create  # type: ignore
 
     async def update(
         self,

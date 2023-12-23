@@ -1,8 +1,14 @@
+from typing import TYPE_CHECKING
+
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import Mapped, relationship
 
 from app.core.db import Base
+
+if TYPE_CHECKING:
+    from .course import Course
+    from .task import Solution
 
 
 class User(SQLAlchemyBaseUserTable[int], Base):
@@ -11,5 +17,5 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
 
-    course: Mapped["Course"] = relationship(back_populates="teacher")
-    solutions: Mapped[list["Solution"]] = relationship(back_populates="author")
+    course: Mapped['Course'] = relationship(back_populates='teacher')
+    solutions: Mapped[list['Solution']] = relationship(back_populates='author')

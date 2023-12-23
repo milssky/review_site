@@ -8,7 +8,7 @@ from app.schemas.tasks import TaskCreate, TaskUpdate
 async def validate_create_task(
     task_data: TaskCreate,
     session: AsyncSession,
-):
+) -> None:
     course_id = task_data.course_id
     course = await course_crud.get(
         session=session,
@@ -20,9 +20,9 @@ async def validate_create_task(
     )
     errors = dict()
     if course is None:
-        errors["course_id"] = "Course not found"
+        errors['course_id'] = 'Course not found'
     if task is not None:
-        errors["task_name"] = "Task with this name exist"
+        errors['task_name'] = 'Task with this name exist'
 
     if errors:
         raise HTTPException(400, detail=errors)
@@ -32,7 +32,7 @@ async def validate_change_task(
     task_data: TaskUpdate,
     task_id: int,
     session: AsyncSession,
-):
+) -> None:
     course_id = task_data.course_id
     course = await course_crud.get(
         session=session,
@@ -48,11 +48,11 @@ async def validate_change_task(
     )
     errors = dict()
     if course is None:
-        errors["course_id"] = "Course not found"
+        errors['course_id'] = 'Course not found'
     if task is None:
-        errors["task_id"] = "Task not found"
+        errors['task_id'] = 'Task not found'
     if task_duplicate_name is not None:
-        errors["task_name"] = "Task with this name exist"
+        errors['task_name'] = 'Task with this name exist'
 
     if errors:
         raise HTTPException(400, detail=errors)
@@ -63,7 +63,7 @@ async def validate_exists(
     row_id: int,
     model_name: str,
     session: AsyncSession,
-):
+) -> None:
     instance = await crud.get(
         id=row_id,
         session=session,
@@ -71,5 +71,5 @@ async def validate_exists(
     if instance is None:
         raise HTTPException(
             400,
-            detail={model_name: "Not found"},
+            detail={model_name: 'Not found'},
         )

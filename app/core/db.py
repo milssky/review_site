@@ -6,7 +6,7 @@ from app.core.config import settings
 
 
 class PreBase:
-    @declared_attr
+    @declared_attr  # type: ignore
     def __tablename__(cls):
         return cls.__name__.lower()
 
@@ -16,9 +16,9 @@ class PreBase:
 Base = declarative_base(cls=PreBase)
 
 engine = create_async_engine(settings.database_url)
-AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
+AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)  # type: ignore
 
 
 async def get_async_session():
-    async with AsyncSessionLocal() as async_session:
+    async with AsyncSessionLocal() as async_session:  # type: ignore
         yield async_session
