@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   api:
@@ -10,16 +10,16 @@ services:
       - database
 
   database:
-      image: postgres:13
-      restart: always
-      environment:
-        POSTGRES_USER: test_user
-        POSTGRES_PASSWORD: test_pass
-        POSTGRES_DB: test_project
-      volumes:
-        - postgres_data:/var/lib/postgresql/data/
-      ports:
-        - 5432:5432
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+      POSTGRES_DB: test_review
+    volumes:
+      - postgres_data:/var/lib/postgresql_review/data/
+    ports:
+      - 5432:5432
 
 volumes:
   postgres_data:

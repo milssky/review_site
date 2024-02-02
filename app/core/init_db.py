@@ -1,5 +1,6 @@
 import contextlib
 
+import sqlalchemy
 from fastapi_users.exceptions import UserAlreadyExists
 from pydantic import EmailStr
 
@@ -31,7 +32,7 @@ async def create_user(
                             is_superuser=is_superuser,
                         )
                     )
-    except UserAlreadyExists:
+    except (UserAlreadyExists, sqlalchemy.exc.ProgrammingError):
         pass
 
 

@@ -13,4 +13,5 @@ RUN poetry install
 
 COPY ./ ./
 
+RUN chmod a+x migrations.sh
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
