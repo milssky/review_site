@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select
+from sqlalchemy import and_, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -17,6 +17,22 @@ class TasksCRUD(CRUDBase[Task]):
             .add_columns(UserTask.is_solved)
         )
         return [{**row[0].__dict__, 'is_solved': row[1]} for row in instances.all()]
+
+    async def get_user_task(
+        self,
+        user_id: int,
+        task_id: int,
+        session: AsyncSession,
+    ):
+        instance = await session.execute(
+            select(UserTask).where(
+                and_(
+                    UserTask.user_id == user_id,
+                    UserTask.task_id == task_id,
+                )
+            )
+        )
+        return instance.scalars().first()
 
     async def give_user_tasks(
         self,

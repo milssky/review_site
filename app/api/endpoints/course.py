@@ -94,6 +94,7 @@ async def change_task(
 )
 async def delete_task(
     course_id: int,
+    _: User = Depends(current_superuser),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удалить курс"""

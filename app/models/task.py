@@ -26,6 +26,12 @@ class Task(Base):
         back_populates='task',
         lazy='selectin',
     )
+    task_users: Mapped[list['UserTask']] = relationship(
+        'UserTask',
+        back_populates='task',
+        cascade='all, delete-orphan',
+        lazy='selectin',
+    )
 
 
 class Solution(Base):
@@ -72,3 +78,5 @@ class UserTask(Base):
     task_id = mapped_column(ForeignKey('task.id'))
     user_id = mapped_column(ForeignKey('user.id'))
     is_solved = Column(Boolean(), default=False)
+
+    task = relationship('Task', back_populates='task_users')
