@@ -1,9 +1,15 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Table
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.core.db import Base
+
+if TYPE_CHECKING:
+    from .course import Course
+    from .user import User
 
 
 class Task(Base):
@@ -18,6 +24,12 @@ class Task(Base):
     )
     solutions: Mapped[list['Solution']] = relationship(
         back_populates='task',
+        lazy='selectin',
+    )
+    task_users: Mapped[list['UserTask']] = relationship(
+        'UserTask',
+        back_populates='task',
+        cascade='all, delete-orphan',
         lazy='selectin',
     )
 
@@ -66,3 +78,5 @@ class UserTask(Base):
     task_id = mapped_column(ForeignKey('task.id'))
     user_id = mapped_column(ForeignKey('user.id'))
     is_solved = Column(Boolean(), default=False)
+
+    task = relationship('Task', back_populates='task_users')

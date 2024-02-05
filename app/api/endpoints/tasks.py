@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
@@ -133,7 +133,7 @@ async def give_task(
 async def remove_task(
     task_id: int,
     user_id: int,
-    _: User = Depends(current_superuser),
+    user: User = Depends(current_user),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удалить задачу у пользователю."""
@@ -152,6 +152,21 @@ async def remove_task(
         session=session,
     )
 
+    allow = False
+    if user.is_superuser:
+        allow = True
+    elif user_id == user.id:
+        user_task = await tasks_crud.get_user_task(
+            user_id=user_id,
+            task_id=task_id,
+            session=session,
+        )
+        if user_task:
+            allow = True
+
+    if not allow:
+        raise HTTPException(422, detail='Dont have permissions to use this')
+
     await tasks_crud.remove_user_tasks(
         user_id=user_id,
         task_id=task_id,
@@ -165,6 +180,7 @@ async def remove_task(
 )
 async def delete_task(
     task_id: int,
+    _: User = Depends(current_superuser),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удалить задачу"""
@@ -175,7 +191,6 @@ async def delete_task(
         crud=tasks_crud,
         session=session,
     )
-
     await tasks_crud.delete(
         session=session,
         id=task_id,
