@@ -60,6 +60,7 @@ class TasksCRUD(CRUDBase[Task]):
                 task_id=task_id,
             )
         )
+        instance = instance.scalars().first()
         await session.delete(instance)
         await session.commit()
 

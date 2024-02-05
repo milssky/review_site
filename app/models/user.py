@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy import Boolean, Column, String
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     username = Column(String(50))
-    is_teacher = Column(Boolean(), default=False)
+    is_teacher: Mapped[bool] = mapped_column(Boolean(), default=False)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
 

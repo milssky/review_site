@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import validate_exists
@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.get('/')
 async def get_all(
-    user: User = Depends(current_superuser),
+    _: User = Depends(current_superuser),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[CourseDB]:
     """Получить все доступные курсы"""
@@ -25,14 +25,18 @@ async def get_all(
 
 @router.post('/')
 async def create(
-    task_data: CourseDB,
+    course_data: CourseDB,
     user: User = Depends(current_superuser),
     session: AsyncSession = Depends(get_async_session),
 ) -> CourseDB:
     """Создать курс."""
+    user = await user_crud.get(id=course_data.teacher_id, session=session)
+
+    if not user or not user.is_teacher:
+        raise HTTPException(422, detail='User not teacher')
 
     course, _ = await course_crud.get_or_create(
-        **task_data.model_dump(),
+        **course_data.model_dump(),
         session=session,
     )
     return course
@@ -43,7 +47,7 @@ async def create(
 )
 async def get(
     course_id: int,
-    user: User = Depends(current_superuser),
+    _: User = Depends(current_superuser),
     session: AsyncSession = Depends(get_async_session),
 ) -> CourseDB:
     """Получить курс"""

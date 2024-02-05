@@ -8,6 +8,8 @@ services:
       - 80:80
     depends_on:
       - database
+    volumes:
+      - ./alembic:/app/alembic
 
   database:
     image: postgres:13

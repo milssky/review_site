@@ -151,6 +151,8 @@ async def remove_task(
         crud=user_crud,
         session=session,
     )
+
+    allow = False
     if user.is_superuser:
         allow = True
     elif user_id == user.id:
